@@ -9,7 +9,7 @@ import requests
 import time
 import unittest
 
-from family_tree import db
+from family_tree import database
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class ApiTestCase(unittest.TestCase):
     db_path = 'test.db'
 
     def setUp(self):
-        db.create(ApiTestCase.db)
+        database.create(ApiTestCase.db)
 
     def tearDown(self):
         db.delete(ApiTestCase.db)

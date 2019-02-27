@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -28,11 +30,17 @@ class Address(Base):
     country = Column(String(10), nullable=False)
     residents = relationship('Person', back_populates='address')
 
-def create(path=None):
-    if not path:
-        path = 'people.db'
-    engine = create_engine('sqlite:///{}'.format(path))
-    Base.metadata.create_all(engine)
+class Database():
+    def __init__(self, path=None):
+        self.path = path
+        if not self.path:
+            self.path = 'people.db'
 
-    connect(path, graphs=['begat'])
+    def create(self):
+        engine = create_engine('sqlite:///{}'.format(self.path))
+        Base.metadata.create_all(engine)
 
+        connect(self.path, graphs=['begat'])
+
+    def delete(self):
+        os.remove(self.path)
