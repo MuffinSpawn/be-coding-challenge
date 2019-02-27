@@ -1,38 +1,14 @@
 import sys
+import argparse
 
-from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from family_tree.database import create
 
-from graphlite import V, connect
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-f', '--file', required=False,
+        help='Path to the database')
+    args = vars(ap.parse_args())
+    create(args['file'])
 
-Base = declarative_base()
-
-class Person(Base):
-    __tablename__ = 'person'
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String(20), nullable=False)
-    middle_name = Column(String(20), nullable=False)
-    last_name = Column(String(20), nullable=False)
-    phone_number = Column(String(10), nullable=False)
-    email = Column(String(30), nullable=False)
-    address_id = Column(Integer, ForeignKey('address.id'))
-    address = relationship('Child', back_populates='residents')
-    birth_date = Column(String(10), nullable=False)
-
-class Address(Base):
-    __tablename__ = 'address'
-    id = Column(Integer, primary_key=True)
-    number = Column(String(10), nullable=False)
-    street = Column(String(20), nullable=False)
-    city = Column(String(20), nullable=False)
-    zipcode = Column(Integer, nullable=False)
-    country = Column(String(10), nullable=False)
-    residents = relationship('Person', back_populates='address')
-
-engine = create_engine('sqlite:///people.db')
-
-Base.metadata.create_all(engine)
-
-connect('people.db', graphs=['begat'])
-
+if __name__ == '__main__':
+    main()
