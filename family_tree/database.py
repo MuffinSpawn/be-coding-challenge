@@ -1,10 +1,13 @@
-import os
+import logging
 
 from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 
-from graphlite import V, connect
+import graphlite
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 Base = declarative_base()
 
@@ -12,12 +15,11 @@ class Person(Base):
     __tablename__ = 'person'
     id = Column(Integer, primary_key=True)
     first_name = Column(String(20), nullable=False)
-    middle_name = Column(String(20), nullable=False)
     last_name = Column(String(20), nullable=False)
-    phone_number = Column(String(10), nullable=False)
+    phone = Column(String(10), nullable=False)
     email = Column(String(30), nullable=False)
     address_id = Column(Integer, ForeignKey('address.id'))
-    address = relationship('Child', back_populates='residents')
+    address = relationship('Address', back_populates='residents')
     birth_date = Column(String(10), nullable=False)
 
 class Address(Base):
@@ -31,16 +33,32 @@ class Address(Base):
     residents = relationship('Person', back_populates='address')
 
 class Database():
+    session_singleton = None
+
     def __init__(self, path=None):
         self.path = path
         if not self.path:
             self.path = 'people.db'
+        self._engine = create_engine('sqlite:///{}'.format(self.path))
+        self._session = None
+        self._graph = graphlite.connect(self.path, graphs=['begat'])
 
     def create(self):
-        engine = create_engine('sqlite:///{}'.format(self.path))
-        Base.metadata.create_all(engine)
+        Base.metadata.create_all(self._engine)
+    
+    def close(self):
+        if self._session:
+            self._session.close()
+        self._engine.dispose()
+        self._graph.close()
 
-        connect(self.path, graphs=['begat'])
-
-    def delete(self):
-        os.remove(self.path)
+    @property
+    def session(self):
+        if not self._session:
+            DBSession = sessionmaker(bind = self._engine)
+            self._session = DBSession()
+        return self._session
+    
+    @property
+    def graph(self):
+        return self._graph
