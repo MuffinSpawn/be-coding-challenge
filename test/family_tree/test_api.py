@@ -9,7 +9,7 @@ import requests
 import time
 import unittest
 
-from family_tree import database
+from family_tree.database import Database
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,17 +22,17 @@ class FamilyTreeClient():
         # Validate record dict
         # Insert Person
         # Insert Address
+        pass
 
 # Base class for most of the other test cases. Used to setup and teardown
 # the LTSimulator instance that the test cases use.
 class ApiTestCase(unittest.TestCase):
-    db_path = 'test.db'
-
     def setUp(self):
-        database.create(ApiTestCase.db)
+        self.database = Database(path='test.db')
+        self.database.create()
 
     def tearDown(self):
-        db.delete(ApiTestCase.db)
+        self.database.delete()
 
     def test_insert_person(self):
         pass
