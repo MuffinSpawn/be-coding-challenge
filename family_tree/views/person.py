@@ -9,9 +9,16 @@ from family_tree.database import Address, Person
 blueprint = blueprints.Blueprint('person', __name__)
 
 
-@blueprint.route('/person', methods=['GET'])
-def get_person():
-    return jsonify(True)
+@blueprint.route('/person/<person_id>', methods=['GET'])
+def get_person(person_id):
+    db = current_app.config['db']
+    person = db.session.query(Person).filter_by(id=person_id).one()
+    record = person.json
+    address_id = record.pop('address_id')
+    address = db.session.query(Address).filter_by(id=address_id).one()
+    record['address'] = address.json
+
+    return jsonify(record)
 
 
 @blueprint.route('/person/add', methods=['POST'])
@@ -20,12 +27,16 @@ def add_person():
     address = record['address']
     logger.debug('Request Data: {}'.format(record))
 
+    db = current_app.config['db']
+
     address = Address(**address)
+    db.session.add(address)
+    db.session.flush()
+
+    record['address_id'] = address.id
     record.pop('address')
     person = Person(**record)
 
-    db = current_app.config['db']
-    db.session.add(address)
     id = db.session.add(person)
     logger.debug('ID: {}'.format(id))
     db.session.commit()

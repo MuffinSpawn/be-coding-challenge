@@ -22,15 +22,25 @@ class Person(Base):
     address = relationship('Address', back_populates='residents')
     birth_date = Column(String(10), nullable=False)
 
+    @property
+    def json(self):
+        return dict(first_name=self.first_name, last_name=self.last_name, birth_date=self.birth_date,
+                    phone=self.phone, email=self.email, address_id=self.address_id)
+
 class Address(Base):
     __tablename__ = 'address'
     id = Column(Integer, primary_key=True)
     number = Column(String(10), nullable=False)
     street = Column(String(20), nullable=False)
     city = Column(String(20), nullable=False)
-    zipcode = Column(Integer, nullable=False)
+    zipcode = Column(String(5), nullable=False)
     country = Column(String(10), nullable=False)
     residents = relationship('Person', back_populates='address')
+
+    @property
+    def json(self):
+        return dict(number=self.number, street=self.street, city=self.city,
+                    zipcode=self.zipcode, country=self.country)
 
 class Database():
     session_singleton = None

@@ -7,7 +7,6 @@ Created on Wed Feb  27 08:23:49 2019
 import json
 import logging
 import os
-import requests
 import tempfile
 import time
 import unittest
@@ -105,7 +104,7 @@ class ApiTestCase(unittest.TestCase):
     def test_person(self):
         record = dict(first_name='Peter', last_name='Lane', birth_date='1972/9/15',
                       phone='708-555-4000', email='marty.mcfly@future.com',
-                      address=dict(number=123, street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
         logger.debug(self.client.post.__doc__)
         response = self.client.post('api/person/add', data=json.dumps(record),
                                     headers={'content-type':'application/json'})
@@ -113,7 +112,9 @@ class ApiTestCase(unittest.TestCase):
 
         response = self.client.get('api/person/1')
         self.assertTrue(response.json)
-        logger.debug('Response: {}'.format(response))
+        logger.debug('Record: {}'.format(record))
+        logger.debug('Response: {}'.format(response.json))
+        self.assertDictEqual(record, response.json)
 
     def test_find_relatives(self):
         pass
