@@ -1,7 +1,7 @@
 from flask import blueprints, current_app, jsonify, request
 import logging
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 from family_tree.database import Address, Person
@@ -25,7 +25,6 @@ def get_person(person_id):
 def add_person():
     record = request.get_json()
     address = record['address']
-    logger.debug('Request Data: {}'.format(record))
 
     db = current_app.config['db']
 
@@ -37,9 +36,7 @@ def add_person():
     record.pop('address')
     person = Person(**record)
 
-    id = db.session.add(person)
-    logger.debug('ID: {}'.format(id))
+    db.session.add(person)
     db.session.commit()
-    # flask.flash('Restaurant {} added.'.format(restaurant.name))
 
     return jsonify(id=person.id)

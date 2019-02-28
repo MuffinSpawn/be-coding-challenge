@@ -86,11 +86,26 @@ class ApiTestCase(unittest.TestCase):
         healthy = response.json
         self.assertTrue(healthy)
 
-    def test_insert_person(self):
-        pass
+    def test_add_child(self):
+        record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
+                      phone='708-555-4000', email='marty.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        child_id = response.json['id']
+        self.assertEqual(1, child_id)
 
-    def test_add_relationship(self):
-        pass
+        record = dict(first_name='George', last_name='McFly', birth_date='1942/2/23',
+                      phone='708-555-4000', email='george.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        parent_id = response.json['id']
+        self.assertEqual(2, parent_id)
+
+        response = self.client.post('api/child/add/{}/{}/'.format(parent_id, child_id))
+        self.assertEqual(200, response.status_code)
+
 
     def test_remove_relationship(self):
         pass
@@ -102,18 +117,16 @@ class ApiTestCase(unittest.TestCase):
         pass
 
     def test_person(self):
-        record = dict(first_name='Peter', last_name='Lane', birth_date='1972/9/15',
+        record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
                       phone='708-555-4000', email='marty.mcfly@future.com',
                       address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
-        logger.debug(self.client.post.__doc__)
         response = self.client.post('api/person/add', data=json.dumps(record),
                                     headers={'content-type':'application/json'})
-        self.assertDictEqual(response.json, dict(id=1))
+        person_id = response.json['id']
+        self.assertEqual(1, person_id)
 
         response = self.client.get('api/person/1')
         self.assertTrue(response.json)
-        logger.debug('Record: {}'.format(record))
-        logger.debug('Response: {}'.format(response.json))
         self.assertDictEqual(record, response.json)
 
     def test_find_relatives(self):
