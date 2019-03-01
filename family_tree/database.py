@@ -47,17 +47,20 @@ class Address(Base):
     number = Column(String(10), nullable=False)
     street = Column(String(20), nullable=False)
     city = Column(String(20), nullable=False)
+    state = Column(String(2), nullable=True)
     postal_code = Column(String(10), nullable=False)
     country = Column(String(10), nullable=False)
     residents = relationship('Person', back_populates='address')
 
-    def update(self, number=None, street=None, city=None, postal_code=None, country=None):
+    def update(self, number=None, street=None, city=None, state=None, postal_code=None, country=None):
         if number:
             self.number = number
         if street:
             self.street = street
         if city:
             self.city = city
+        if state:
+            self.state = state
         if postal_code:
             self.postal_code = postal_code
         if country:
@@ -65,8 +68,11 @@ class Address(Base):
 
     @property
     def json(self):
-        return dict(number=self.number, street=self.street, city=self.city,
+        record = dict(number=self.number, street=self.street, city=self.city,
                     postal_code=self.postal_code, country=self.country)
+        if self.state:
+            record['state'] = self.state
+        return record
 
 class Database():
     session_singleton = None

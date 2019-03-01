@@ -47,7 +47,12 @@ def get_parents(person_id):
 
 @blueprint.route('/grandparents/<person_id>', methods=['GET'])
 def get_grandparents(person_id):
-    return jsonify(False), 403
+    db = current_app.config['db']
+    parent_ids = list(db.graph.find(V().begat(person_id)))
+    grandparent_ids = []
+    for parent_id in parent_ids:
+        grandparent_ids += list(db.graph.find(V().begat(parent_id)))
+    return jsonify(grandparent_ids)
 
 
 @blueprint.route('/cousins/<person_id>', methods=['GET'])
