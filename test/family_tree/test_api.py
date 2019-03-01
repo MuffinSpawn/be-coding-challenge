@@ -20,53 +20,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# class FamilyTreeClient():
-#     def __init__(self, base_url=None):
-#         self.base_url = base_url
-#         if not self.base_url:
-#             self.base_url = 'http://127.0.0.1:5000'
 
-#     def _get(self, id, rest_path):
-#         response = requests.get('{}/{}/{}'.format(self.base_url, rest_path, id))
-#         if response.status_code != 200:
-#             return None
-#         return response.json()
-
-#     def get_person(self, id):
-#         return self._get(id, 'person')
-
-#     def get_parents(self, id):
-#         return self._get(id, 'relative/parents')
-
-#     def get_children(self, id):
-#         return self._get(id, 'relative/children')
-
-#     def get_grandparents(self, id):
-#         return self._get(id, 'relative/grandparents')
-
-#     def get_siblings(self, id):
-#         return self._get(id, 'relative/siblings')
-
-#     def get_cousins(self, id):
-#         return self._get(id, 'relative/cousins')
-
-#     def insert_person(self, name, birth_date, phone, email, address):
-#         record = dict(name=name, phone=phone, email=email, address=address)
-#         response = requests.put('{}/person/add'.format(self.base_url), data=record)
-#         return response.status_code
-
-#     def set_parent(self, child_id, parent_id):
-#         record = dict(child_id=child_id, parent_id=parent_id)
-#         response = requests.put('{}/relative/parent'.format(self.base_url), data=record)
-#         return response.status_code
-
-#     def set_child(self, parent_id, child_id):
-#         record = dict(child_id=child_id, parent_id=parent_id)
-#         response = requests.put('{}/relative/child'.format(self.base_url), data=record)
-#         return response.status_code
-
-# Base class for most of the other test cases. Used to setup and teardown
-# the LTSimulator instance that the test cases use.
 class ApiTestCase(unittest.TestCase):
     def setUp(self):
         self.db_file,self.db_path = tempfile.mkstemp(suffix='.db')
