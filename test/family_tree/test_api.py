@@ -103,12 +103,50 @@ class ApiTestCase(unittest.TestCase):
         parent_id = response.json['id']
         self.assertEqual(2, parent_id)
 
-        response = self.client.post('api/child/add/{}/{}/'.format(parent_id, child_id))
+        response = self.client.post('api/child/add/{}/{}'.format(parent_id, child_id))
         self.assertEqual(200, response.status_code)
 
+        response = self.client.get('api/children/{}'.format(parent_id))
+        child_ids = response.json
+        self.assertEqual(1, len(child_ids))
+        self.assertEqual(child_id, child_ids[0])
 
-    def test_remove_relationship(self):
-        pass
+    def test_find_siblings(self):
+        record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
+                      phone='708-555-4000', email='marty.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        brother_id = response.json['id']
+        self.assertEqual(1, brother_id)
+
+        record = dict(first_name='George', last_name='McFly', birth_date='1942/2/23',
+                      phone='708-555-4000', email='george.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        parent_id = response.json['id']
+        self.assertEqual(2, parent_id)
+
+        response = self.client.post('api/child/add/{}/{}'.format(parent_id, brother_id))
+        self.assertEqual(200, response.status_code)
+
+        record = dict(first_name='Mandy', last_name='McFly', birth_date='1970/02/03',
+                      phone='708-555-4000', email='mandy.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        sister_id = response.json['id']
+        self.assertEqual(3, sister_id)
+
+        response = self.client.post('api/child/add/{}/{}'.format(parent_id, sister_id))
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.get('api/siblings/{}'.format(brother_id))
+        sibling_ids = response.json
+        self.assertEqual(2, len(sibling_ids))
+        self.assertTrue(sister_id in sibling_ids)
+        self.assertTrue(brother_id in sibling_ids)
 
     def test_remove_person(self):
         pass
@@ -128,9 +166,6 @@ class ApiTestCase(unittest.TestCase):
         response = self.client.get('api/person/1')
         self.assertTrue(response.json)
         self.assertDictEqual(record, response.json)
-
-    def test_find_relatives(self):
-        pass
 
 if __name__ == '__main__':
     unittest.main()
