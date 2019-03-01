@@ -11,9 +11,6 @@ import tempfile
 import time
 import unittest
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
 from family_tree.app import create_app
 
 logging.basicConfig(level=logging.INFO)
