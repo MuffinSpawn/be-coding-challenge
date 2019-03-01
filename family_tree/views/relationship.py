@@ -35,7 +35,9 @@ def get_siblings(person_id):
         partial_sibling_ids = list(db.graph.find(V(parent_id).begat(None)))
         for partial_sibling_id in partial_sibling_ids:
             sibling_ids.add(partial_sibling_id)
-    return jsonify(list(sibling_ids))
+    select_sibling_ids = list(sibling_ids)
+    select_sibling_ids.remove(int(person_id))
+    return jsonify(select_sibling_ids)
 
 
 @blueprint.route('/parents/<person_id>', methods=['GET'])
@@ -49,6 +51,7 @@ def get_parents(person_id):
 def get_grandparents(person_id):
     db = current_app.config['db']
     parent_ids = list(db.graph.find(V().begat(person_id)))
+
     grandparent_ids = []
     for parent_id in parent_ids:
         grandparent_ids += list(db.graph.find(V().begat(parent_id)))
@@ -57,4 +60,25 @@ def get_grandparents(person_id):
 
 @blueprint.route('/cousins/<person_id>', methods=['GET'])
 def get_cousins(person_id):
-    return jsonify(False), 403
+    db = current_app.config['db']
+    parent_ids = list(db.graph.find(V().begat(person_id)))
+
+    grandparent_ids = []
+    for parent_id in parent_ids:
+        grandparent_ids += list(db.graph.find(V().begat(parent_id)))
+
+    auntuncle_ids = set([])
+    for grandparent_id in grandparent_ids:
+        partial_auntuncle_ids = list(db.graph.find(V(grandparent_id).begat(None)))
+        for partial_auntuncle_id in partial_auntuncle_ids:
+            auntuncle_ids.add(partial_auntuncle_id)
+    select_auntuncle_ids = list(partial_auntuncle_id)
+    for parent_id in parent_ids:
+        select_auntuncle_ids.remove(int(parent_id))
+    
+    cousin_ids = set([])
+    for auntuncle_id in select_auntuncle_ids:
+        partial_cousin_ids = list(db.graph.find(V(auntuncle_id).begat(None)))
+        for partial_cousin_id in partial_cousin_ids:
+            cousin_ids.add(partial_cousin_id)
+    return jsonify(cousin_ids)

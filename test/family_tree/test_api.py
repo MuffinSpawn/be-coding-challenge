@@ -198,9 +198,8 @@ class ApiTestCase(unittest.TestCase):
         response = self.client.get('api/siblings/{}'.format(brother_id))
         self.assertEqual(200, response.status_code)
         sibling_ids = response.json
-        self.assertEqual(2, len(sibling_ids))
+        self.assertEqual(1, len(sibling_ids))
         self.assertTrue(sister_id in sibling_ids)
-        self.assertTrue(brother_id in sibling_ids)
 
     def test_find_parents(self):
         record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
