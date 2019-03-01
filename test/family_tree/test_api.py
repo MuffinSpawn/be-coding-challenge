@@ -99,7 +99,7 @@ class ApiTestCase(unittest.TestCase):
         response = self.client.get('api/parents/{}'.format(child_id))
         self.assertEqual(200, response.status_code)
         parent_ids = response.json
-        self.assertEqual(0, len(child_ids))
+        self.assertEqual(0, len(parent_ids))
 
 
     def test_update_person(self):
@@ -196,13 +196,52 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(200, response.status_code)
 
         response = self.client.get('api/siblings/{}'.format(brother_id))
+        self.assertEqual(200, response.status_code)
         sibling_ids = response.json
         self.assertEqual(2, len(sibling_ids))
         self.assertTrue(sister_id in sibling_ids)
         self.assertTrue(brother_id in sibling_ids)
 
     def test_find_parents(self):
-        pass
+        record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
+                      phone='708-555-4000', email='marty.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        self.assertEqual(201, response.status_code)
+        child_id = response.json['id']
+        self.assertEqual(1, child_id)
+
+        record = dict(first_name='George', last_name='McFly', birth_date='1942/2/23',
+                      phone='708-555-4000', email='george.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        self.assertEqual(201, response.status_code)
+        father_id = response.json['id']
+        self.assertEqual(2, father_id)
+
+        response = self.client.post('api/child/add/{}/{}'.format(father_id, child_id))
+        self.assertEqual(200, response.status_code)
+
+        record = dict(first_name='Lorraine', last_name='McFly', birth_date='1942/5/04',
+                      phone='708-555-4000', email='lorraine.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        self.assertEqual(201, response.status_code)
+        mother_id = response.json['id']
+        self.assertEqual(3, mother_id)
+
+        response = self.client.post('api/child/add/{}/{}'.format(mother_id, child_id))
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.get('api/parents/{}'.format(child_id))
+        self.assertEqual(200, response.status_code)
+        parent_ids = response.json
+        self.assertEqual(2, len(parent_ids))
+        self.assertTrue(mother_id in parent_ids)
+        self.assertTrue(father_id in parent_ids)
 
     def test_find_grandparents(self):
         pass

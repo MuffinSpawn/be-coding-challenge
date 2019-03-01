@@ -40,14 +40,16 @@ def get_siblings(person_id):
 
 @blueprint.route('/parents/<person_id>', methods=['GET'])
 def get_parents(person_id):
-    return jsonify(True)
+    db = current_app.config['db']
+    parent_ids = list(db.graph.find(V().begat(person_id)))
+    return jsonify(parent_ids)
 
 
 @blueprint.route('/grandparents/<person_id>', methods=['GET'])
 def get_grandparents(person_id):
-    return jsonify(True)
+    return jsonify(False), 403
 
 
 @blueprint.route('/cousins/<person_id>', methods=['GET'])
 def get_cousins(person_id):
-    return jsonify(True)
+    return jsonify(False), 403
