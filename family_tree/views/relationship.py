@@ -36,3 +36,18 @@ def get_siblings(person_id):
         for partial_sibling_id in partial_sibling_ids:
             sibling_ids.add(partial_sibling_id)
     return jsonify(list(sibling_ids))
+
+
+@blueprint.route('/parents/<person_id>', methods=['GET'])
+def get_parents(person_id):
+    return jsonify(True)
+
+
+@blueprint.route('/grandparents/<person_id>', methods=['GET'])
+def get_grandparents(person_id):
+    return jsonify(True)
+
+
+@blueprint.route('/cousins/<person_id>', methods=['GET'])
+def get_cousins(person_id):
+    return jsonify(True)

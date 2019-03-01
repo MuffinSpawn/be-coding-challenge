@@ -86,6 +86,25 @@ class ApiTestCase(unittest.TestCase):
         healthy = response.json
         self.assertTrue(healthy)
 
+    def test_add_person(self):
+        record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
+                      phone='708-555-4000', email='marty.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        person_id = response.json['id']
+        self.assertEqual(1, person_id)
+
+        response = self.client.get('api/person/1')
+        self.assertTrue(response.json)
+        self.assertDictEqual(record, response.json)
+
+    def test_remove_person(self):
+        pass
+
+    def test_update_person(self):
+        pass
+
     def test_add_child(self):
         record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
                       phone='708-555-4000', email='marty.mcfly@future.com',
@@ -148,24 +167,14 @@ class ApiTestCase(unittest.TestCase):
         self.assertTrue(sister_id in sibling_ids)
         self.assertTrue(brother_id in sibling_ids)
 
-    def test_remove_person(self):
+    def test_find_parents(self):
         pass
 
-    def test_update_person(self):
+    def test_find_grandparents(self):
         pass
 
-    def test_person(self):
-        record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
-                      phone='708-555-4000', email='marty.mcfly@future.com',
-                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
-        response = self.client.post('api/person/add', data=json.dumps(record),
-                                    headers={'content-type':'application/json'})
-        person_id = response.json['id']
-        self.assertEqual(1, person_id)
-
-        response = self.client.get('api/person/1')
-        self.assertTrue(response.json)
-        self.assertDictEqual(record, response.json)
+    def test_find_cousings(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()
