@@ -28,6 +28,8 @@ def add_person():
 
     db = current_app.config['db']
 
+    # For now just add a new address for each person.
+    # Ideally we would check if the address exists and reuse it.
     address = Address(**address)
     db.session.add(address)
     db.session.flush()
@@ -40,3 +42,26 @@ def add_person():
     db.session.commit()
 
     return jsonify(id=person.id)
+
+
+@blueprint.route('/person/update/<person_id>', methods=['POST'])
+def update_person(person_id):
+    update_record = request.get_json()
+
+    db = current_app.config['db']
+    person = db.session.query(Person).filter_by(id=person_id).one()
+
+    try:
+        update_address = update_record.pop('address')
+
+        address = db.session.query(Address).filter_by(id=person.address_id).one()
+        address.update(**update_address)
+        db.session.add(address)
+    except KeyError:
+        pass
+    person.update(**update_record)
+    db.session.add(person)
+
+    db.session.commit()
+
+    return jsonify(True)

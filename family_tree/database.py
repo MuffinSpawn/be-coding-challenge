@@ -16,11 +16,25 @@ class Person(Base):
     id = Column(Integer, primary_key=True)
     first_name = Column(String(20), nullable=False)
     last_name = Column(String(20), nullable=False)
+    birth_date = Column(String(10), nullable=False)
     phone = Column(String(10), nullable=False)
     email = Column(String(30), nullable=False)
     address_id = Column(Integer, ForeignKey('address.id'))
     address = relationship('Address', back_populates='residents')
-    birth_date = Column(String(10), nullable=False)
+
+    def update(self, first_name=None, last_name=None, birth_date=None, phone=None, email=None, address_id=None):
+        if first_name:
+            self.first_name = first_name
+        if last_name:
+            self.last_name = last_name
+        if birth_date:
+            self.birth_date = birth_date
+        if phone:
+            self.phone = phone
+        if email:
+            self.email = email
+        if address_id:
+            self.address_id = address_id
 
     @property
     def json(self):
@@ -33,14 +47,26 @@ class Address(Base):
     number = Column(String(10), nullable=False)
     street = Column(String(20), nullable=False)
     city = Column(String(20), nullable=False)
-    zipcode = Column(String(5), nullable=False)
+    postal_code = Column(String(10), nullable=False)
     country = Column(String(10), nullable=False)
     residents = relationship('Person', back_populates='address')
+
+    def update(self, number=None, street=None, city=None, postal_code=None, country=None):
+        if number:
+            self.number = number
+        if street:
+            self.street = street
+        if city:
+            self.city = city
+        if postal_code:
+            self.postal_code = postal_code
+        if country:
+            self.country = country
 
     @property
     def json(self):
         return dict(number=self.number, street=self.street, city=self.city,
-                    zipcode=self.zipcode, country=self.country)
+                    postal_code=self.postal_code, country=self.country)
 
 class Database():
     session_singleton = None

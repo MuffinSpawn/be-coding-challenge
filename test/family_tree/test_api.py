@@ -40,7 +40,7 @@ class ApiTestCase(unittest.TestCase):
     def test_add_person(self):
         record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
                       phone='708-555-4000', email='marty.mcfly@future.com',
-                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
         response = self.client.post('api/person/add', data=json.dumps(record),
                                     headers={'content-type':'application/json'})
         person_id = response.json['id']
@@ -54,12 +54,40 @@ class ApiTestCase(unittest.TestCase):
         pass
 
     def test_update_person(self):
-        pass
+        record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
+                      phone='708-555-4000', email='marty.mcfly@future.com',
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
+        response = self.client.post('api/person/add', data=json.dumps(record),
+                                    headers={'content-type':'application/json'})
+        person_id = response.json['id']
+        self.assertEqual(1, person_id)
+
+        response = self.client.get('api/person/1')
+        self.assertEqual('708-555-4000', response.json['phone'])
+
+        # Update phone number
+        update_record = dict(phone='630-555-9258')
+        response = self.client.post('api/person/update/{}'.format(person_id), data=json.dumps(update_record),
+                                    headers={'content-type':'application/json'})
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.get('api/person/1')
+        self.assertEqual(update_record['phone'], response.json['phone'])
+
+        # Update address
+        update_record = dict(address=dict(number='221B', street='Baker St.', city='London', postal_code='WC2N 5DU', country='UK'))
+        response = self.client.post('api/person/update/{}'.format(person_id), data=json.dumps(update_record),
+                                    headers={'content-type':'application/json'})
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.get('api/person/1')
+        self.assertDictEqual(update_record['address'], response.json['address'])
+
 
     def test_add_child(self):
         record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
                       phone='708-555-4000', email='marty.mcfly@future.com',
-                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
         response = self.client.post('api/person/add', data=json.dumps(record),
                                     headers={'content-type':'application/json'})
         child_id = response.json['id']
@@ -67,7 +95,7 @@ class ApiTestCase(unittest.TestCase):
 
         record = dict(first_name='George', last_name='McFly', birth_date='1942/2/23',
                       phone='708-555-4000', email='george.mcfly@future.com',
-                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
         response = self.client.post('api/person/add', data=json.dumps(record),
                                     headers={'content-type':'application/json'})
         parent_id = response.json['id']
@@ -84,7 +112,7 @@ class ApiTestCase(unittest.TestCase):
     def test_find_siblings(self):
         record = dict(first_name='Martin', last_name='McFly', birth_date='1972/9/15',
                       phone='708-555-4000', email='marty.mcfly@future.com',
-                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
         response = self.client.post('api/person/add', data=json.dumps(record),
                                     headers={'content-type':'application/json'})
         brother_id = response.json['id']
@@ -92,7 +120,7 @@ class ApiTestCase(unittest.TestCase):
 
         record = dict(first_name='George', last_name='McFly', birth_date='1942/2/23',
                       phone='708-555-4000', email='george.mcfly@future.com',
-                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
         response = self.client.post('api/person/add', data=json.dumps(record),
                                     headers={'content-type':'application/json'})
         parent_id = response.json['id']
@@ -103,7 +131,7 @@ class ApiTestCase(unittest.TestCase):
 
         record = dict(first_name='Mandy', last_name='McFly', birth_date='1970/02/03',
                       phone='708-555-4000', email='mandy.mcfly@future.com',
-                      address=dict(number='123', street='Sesame St.', city='New York', zipcode='03124', country='USA'))
+                      address=dict(number='123', street='Sesame St.', city='New York', postal_code='03124', country='USA'))
         response = self.client.post('api/person/add', data=json.dumps(record),
                                     headers={'content-type':'application/json'})
         sister_id = response.json['id']
